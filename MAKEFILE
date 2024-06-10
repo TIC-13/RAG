@@ -1,0 +1,58 @@
+# Compiladores
+CC_DESKTOP = g++
+CC_ANDROID = $(NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang++
+
+# Flags de compilação
+CFLAGS = -Wall -g
+ANDROID_CFLAGS = --target=aarch64-none-linux-android21 --sysroot=$(NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot -fPIE -fPIC
+
+DIR_VECTOR_STORE = /path/to/
+FILE_VECTOR_STORE=vector_store_file
+
+########################################
+
+all_desktop: desktop exec_desktop
+all_android: android exec_android
+
+OBJS_DESKTOP = main.o funcao1.o
+OBJS_ANDROID = main_android.o funcao1_android.o
+
+
+# Regras para compilar os arquivos objeto
+main.o: main.cpp
+	$(CC_DESKTOP) $(CFLAGS) -c main.cpp -o main.o
+
+funcao1.o: funcao1.cpp funcao1.h
+	$(CC_DESKTOP) $(CFLAGS) -c funcao1.cpp -o funcao1.o
+
+
+# Regras para compilar os arquivos objeto para Android
+main_android.o: main.cpp
+	$(CC_ANDROID) $(ANDROID_CFLAGS) -c main.cpp -o main_android.o
+
+funcao1_android.o: funcao1.cpp funcao1.h
+	$(CC_ANDROID) $(ANDROID_CFLAGS) -c funcao1.cpp -o funcao1_android.o
+
+
+desktop: $(OBJS_DESKTOP)
+	$(CC_DESKTOP) $(CFLAGS) -o build/reggae $(OBJS_DESKTOP)
+
+exec_desktop:
+	./build/reggae $(DIR_VECTOR_STORE)/$(FILE_VECTOR_STORE)
+
+
+android: $(OBJS)
+	$(CC_ANDROID) $(ANDROID_CFLAGS) -o build/reggae $(OBJS)
+
+DIR_ANDROID_WORKSPACE = /data/local/tmp/rag
+exec_android:
+	adb shell mkdir -p $(DIR_ANDROID_WORKSPACE)
+	adb push build/reggae $(DIR_ANDROID_WORKSPACE)
+	adb shell chmod +x $(DIR_ANDROID_WORKSPACE)/reggae
+	adb push $(DIR_VECTOR_STORE)/$(FILE_VECTOR_STORE) $(DIR_ANDROID_WORKSPACE)/$(FILE_VECTOR_STORE)
+	adb shell $(DIR_ANDROID_WORKSPACE)/reggae $(DIR_ANDROID_WORKSPACE)/$(FILE_VECTOR_STORE)
+
+
+clean:
+	rm -f $(OBJS_DESKTOP) $(OBJS_ANDROID) /build/reggae
+

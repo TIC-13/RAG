@@ -5,8 +5,8 @@ PY_DESKTOP = python3
 # CC_ANDROID = $(NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang++
 
 # Flags de compilação
-EMBEDDING_REQ = /embedding/requirements.txt
-CHUNKENIZER_REQ = /chunkenizer/requirements.txt
+EMBEDDING_REQ = ./embedding/requirements.txt
+CHUNKENIZER_REQ = ./chunkenizer/requirements.txt
 
 # CFLAGS = -Wall -g
 # ANDROID_CFLAGS = --target=aarch64-none-linux-android21 --sysroot=$(NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot -fPIE -fPIC
@@ -24,16 +24,16 @@ all_desktop: embedding chunkenizer	# desktop exec_desktop
 
 
 # Regras para compilar os arquivos objeto
-venv:
+./venv:
 	$(PY_DESKTOP) -m venv venv
 
 VENV_PY = ./venv/bin/python3
 VENV_PIP = ./venv/bin/pip
 
-embedding: $(EMBEDDING_REQ) venv
+embedding: $(EMBEDDING_REQ) ./venv
 	$(VENV_PIP) install -r $(EMBEDDING_REQ)
 
-chunkenizer: $(CHUNKENIZER_REQ) venv
+chunkenizer: $(CHUNKENIZER_REQ) ./venv
 	$(VENV_PIP) install -r $(CHUNKENIZER_REQ)
 
 # main.o: main.cpp
@@ -69,7 +69,7 @@ chunkenizer: $(CHUNKENIZER_REQ) venv
 
 clean:
 	rm -rf __pycache__
-	rm -rf venv
+	rm -rf ./venv
 
 # 	rm -f $(OBJS_DESKTOP) $(OBJS_ANDROID) /build/reggae 
 

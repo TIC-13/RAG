@@ -4,7 +4,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import argparse
 
 
-def Chunk(string=None, file=None, threshold=85):
+def Chunk(string, file, threshold): 
     embedder = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
     splitter = SemanticSplitterNodeParser(
         buffer_size=1, breakpoint_percentile_threshold=threshold, embed_model=embedder
@@ -50,7 +50,12 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--file', action='store', nargs='+', type=str, help='PATH of file(s) to chunk')
     args = parser.parse_args()
 
-    chunks = Chunk(string=args.string, file=args.file, threshold=args.threshold[0])
+    if args.threshold == None:
+        threshold = 85
+    else:
+        threshold = args.threshold[0]
+
+    chunks = Chunk(string=args.string, file=args.file, threshold=threshold)
     print('chunks:', len(chunks),'\n')
     for i in range(len(chunks)):
         print('\n<chunk>\n',chunks[i],'\n</chunk>\n')

@@ -5,8 +5,8 @@ PY_DESKTOP = python3
 # CC_ANDROID = $(NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang++
 
 # Flags de compilação
-EMBEDDING_REQ = ./embedding/requirements.txt
-CHUNKENIZER_REQ = ./chunkenizer/requirements.txt
+EMBEDDING_REQ = /embedding/requirements.txt
+CHUNKENIZER_REQ = /chunkenizer/requirements.txt
 
 # CFLAGS = -Wall -g
 # ANDROID_CFLAGS = --target=aarch64-none-linux-android21 --sysroot=$(NDK_ROOT)/toolchains/llvm/prebuilt/linux-x86_64/sysroot -fPIE -fPIC
@@ -34,7 +34,7 @@ embedding: $(EMBEDDING_REQ) venv
 	$(VENV_PIP) install -r $(EMBEDDING_REQ)
 
 chunkenizer: $(CHUNKENIZER_REQ) venv
-	$(VENV_PIP) inStall -r $(CHUNKENIZER_REQ)
+	$(VENV_PIP) install -r $(CHUNKENIZER_REQ)
 
 # main.o: main.cpp
 # 	$(CC_DESKTOP) $(CFLAGS) -c main.cpp -o main.o

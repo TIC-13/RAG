@@ -4,3 +4,6 @@
 [submodule "vector_store/rapidcsv"]
 	path = vector_store/rapidcsv
 	url = https://github.com/TIC-13/rapidcsv.git
+[submodule "mlc"]
+	path = mlc
+	url = https://github.com/TIC-13/mlc-llm_rag.git

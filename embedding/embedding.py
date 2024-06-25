@@ -1,9 +1,10 @@
 import argparse
 from mediapipe.tasks import python
 from mediapipe.tasks.python import text
+from chunkenizer.chunkenizer import Chunk
 import time
 
-def Embed(model, string=None, file=None):
+def Embed(model, string, file):
 
     model_path = model[0]
     embeddings = []
@@ -33,18 +34,16 @@ def Embed(model, string=None, file=None):
             start_read_time = time.time()
             for i in range(len(file)):
                 with open(file[i]) as input_file:
-                    text_to_embed = input_file.read().split("\n")
-
-                # for j in range(len(file_paragraphs)):
-                #     chunks_to_embed = chunk(text_to_embed)
+                    text_to_embed = input_file.read()
+                    chunks_to_embed = Chunk(text_to_embed)
                 
                 start_embed_time = time.time()
-                for j in range(len(text_to_embed)):
-                    embedding_result = embedder.embed(text_to_embed[j])
+                for j in range(len(chunks_to_embed)):
+                    embedding_result = embedder.embed(chunks_to_embed[j])
                     # print(embedding_result.embeddings[0])
                     embeddings.append(
                     { 'embed': embedding_result.embeddings[0],
-                      'sentence': text_to_embed[j] }
+                      'sentence': chunks_to_embed[j] }
                     )
                 
                 end_embed_time = time.time()
@@ -56,7 +55,8 @@ def Embed(model, string=None, file=None):
             print("Total execution time in ms:",exec_read_time*1000,'\n') 
 
         if string is None and file is None:
-            raise Exception("You must inform at least one file or string to embed.")
+            print("ERROR: You must inform at least one file or string to embed.")
+            return []
         
         return embeddings
 
@@ -71,4 +71,5 @@ if __name__ == '__main__':
 
     embeddings = Embed(model=args.model, string=args.string, file=args.file)
     for obj in embeddings:
-        print('embed:',obj['embed'],'\nsentence:',obj['sentence'],'\n')
+        print("embed:",obj['embed'].embedding,"\n\n")
+        # print('embed:',obj['embed'],'\nsentence:',obj['sentence'],'\n')

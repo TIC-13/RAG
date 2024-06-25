@@ -28,7 +28,6 @@ all_desktop: embedding chunkenizer	# desktop exec_desktop
 	$(PY_DESKTOP) -m venv venv
 
 VENV_PY = ./venv/bin/python3
-VENV_PIP = ./venv/bin/pip
 
 embedding: $(EMBEDDING_REQ) chunkenizer ./venv
 	$(VENV_PY) -m pip install -r $(EMBEDDING_REQ)

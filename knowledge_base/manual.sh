@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#httrack https://help.motorola.com/hc/5510/13/global/en-us/index.html -O ./razr_40
+httrack https://help.motorola.com/hc/5510/13/global/en-us/index.html -O ./razr_40
 
 input_dir="./razr_40/help.motorola.com/hc/5510/13/global/en-us"
 
@@ -16,11 +16,9 @@ echo "Conversão concluída. Os arquivos TXT estão em $output_dir"
 
 echo "" > ./razr_40/complete_manual.txt
 
-cd razr_40/help.motorola.com/hc/5510/13/global/en-us/txts/
+cd razr_40
 
-cat *.txt >> ../../../../../../../complete_manual.txt
-
-cd ../../../../../../../
+cat ./help.motorola.com/hc/5510/13/global/en-us/txts/*.txt >> ./complete_manual.txt
 
 cat << 'EOF' > remove_text.py
 import os

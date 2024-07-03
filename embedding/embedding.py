@@ -2,9 +2,8 @@ import argparse
 from mediapipe.tasks import python
 from mediapipe.tasks.python import text
 from chunkenizer.chunkenizer import Chunk
-import time
 
-def Embed(model, string, file):
+def Embed(model, string=None, file=None):
 
     model_path = model[0]
     embeddings = []
@@ -16,7 +15,6 @@ def Embed(model, string, file):
 
     with text.TextEmbedder.create_from_options(options) as embedder:
         if string is not None:
-            start_embed_time = time.time()
             for i in range(len(string)):
                 text_to_embed = string[i]
                 embedding_result = embedder.embed(text_to_embed)
@@ -25,40 +23,35 @@ def Embed(model, string, file):
                     { 'embed': embedding_result.embeddings[0],
                       'sentence': text_to_embed }
                     )
-            
-            end_embed_time = time.time()
-            exec_embed_time = end_embed_time - start_embed_time
-            print("\nExecution time in ms:",exec_embed_time*1000,"\nExecution time in ms per embedding:",(exec_embed_time*1000)/len(args.string)) 
+                
 
         if file is not None:
-            start_read_time = time.time()
-            for i in range(len(file)):
-                with open(file[i]) as input_file:
-                    text_to_embed = input_file.read()
-                    chunks_to_embed = Chunk(text_to_embed)
-                
-                start_embed_time = time.time()
-                for j in range(len(chunks_to_embed)):
-                    embedding_result = embedder.embed(chunks_to_embed[j])
-                    # print(embedding_result.embeddings[0])
-                    embeddings.append(
-                    { 'embed': embedding_result.embeddings[0],
-                      'sentence': chunks_to_embed[j] }
-                    )
-                
-                end_embed_time = time.time()
-                exec_embed_time = end_embed_time - start_embed_time
-                print("\nExecution time of file",i+1,"in ms:",exec_embed_time*1000,"\nExecution time in ms per embedding:",(exec_embed_time*1000)/len(text_to_embed)) 
+            chunks_to_embed = Chunk(file=file)
 
-            end_read_time = time.time()
-            exec_read_time = end_read_time - start_read_time
-            print("Total execution time in ms:",exec_read_time*1000,'\n') 
+            for i in range(len(chunks_to_embed)):
+                embedding_result = embedder.embed(chunks_to_embed[i])
+                # print(embedding_result.embeddings[0])
+                embeddings.append(
+                {   'embed': embedding_result.embeddings[0],
+                    'sentence': chunks_to_embed[i] }
+                )
 
         if string is None and file is None:
             print("ERROR: You must inform at least one file or string to embed.")
             return []
         
-        return embeddings
+        f = open("embedding.csv", "w+")
+        for obj in embeddings:
+            f.write(str(obj['embed'].embedding[0]))
+            f.write("\n")
+            for i in range(len(obj['embed'].embedding)-1):
+                f.write(" " + str(obj['embed'].embedding[i+1]))
+
+        f = open("chunks.csv", "w+")
+        f.write(embeddings[0]['sentence'])
+        for i in range(len(embeddings)-1):
+            f.write("\n>>>>>>>>>>>>>>@<<<<<<<<<<<<<<\n")
+            f.write(embeddings[i+1]['sentence'])
 
                 
 if __name__ == '__main__':

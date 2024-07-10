@@ -1,9 +1,0 @@
-Metadata-Version: 2.1
-Name: local_rag_chunkenizer
-Version: 0.0.1
-Summary: Chunkenize documents
-Home-page: https://github.com/TIC-13/RAG
-Author: LuxAI
-Author-email: cinsoftextic13@gmail.com
-Classifier: Programming Language :: Python
-Classifier: Programming Language :: Python :: 3.11

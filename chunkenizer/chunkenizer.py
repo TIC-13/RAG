@@ -5,6 +5,22 @@ import argparse
 import pandas as pd
 
 
+def SemanticSplit(buffer_size, threshold, text_to_chunk):
+    embedder = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    splitter = SemanticSplitterNodeParser(
+        buffer_size=buffer_size, breakpoint_percentile_threshold=threshold, embed_model=embedder
+    )
+    document = [Document(text=text_to_chunk)]
+    nodes = splitter.get_nodes_from_documents(document)
+    return nodes
+
+
+def MarkdownSplit(text_to_chunk):
+    nodes = ["#"+str for str in text_to_chunk.split("#")]
+    nodes.pop(0)
+    return nodes
+
+
 def Chunk(string=None, file=None, chunking='markdown', threshold=85, buffer_size=1): 
     if string is None and file is None:
         print("ERROR: You must inform one file or string for chunking.")
@@ -13,50 +29,35 @@ def Chunk(string=None, file=None, chunking='markdown', threshold=85, buffer_size
     # print(string,file,chunking,threshold,buffer_size)
     chunks = []
 
-    if chunking == 'markdown':
-        if string is not None:
-            text_to_chunk = string[i]
-            nodes = ["#"+str for str in text_to_chunk.split("#")]
+    if string is not None:
+        text_to_chunk = string[i]
+
+        if chunking == 'markdown':
+            nodes = MarkdownSplit(text_to_chunk)
             for j in range(len(nodes)):
                 chunks.append(nodes[j])
+        elif chunking == 'semantic':
+            nodes = SemanticSplit(buffer_size, threshold, text_to_chunk)
+            for j in range(len(nodes)):
+                chunks.append(nodes[j].get_content())
 
-        if file is not None:
-            for i in range(len(file)):
-                with open(file[i]) as input_file:
-                    text_to_chunk = input_file.read()
-                nodes = ["#"+str for str in text_to_chunk.split("#")]
-                # print(nodes)
+    if file is not None:
+        for i in range(len(file)):
+            with open(file[i]) as input_file:
+                text_to_chunk = input_file.read()
+
+            if chunking == 'markdown':
+                nodes = MarkdownSplit(text_to_chunk)
                 for j in range(len(nodes)):
                     chunks.append(nodes[j])
+            elif chunking == 'semantic':
+                nodes = SemanticSplit(buffer_size, threshold, text_to_chunk)
+                for j in range(len(nodes)):
+                    chunks.append(nodes[j].get_content())
+
+            # print(nodes)
 
         # print(chunks)
-        chunks.pop(0)
-
-    if chunking == 'semantic':
-        embedder = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-        splitter = SemanticSplitterNodeParser(
-            buffer_size=buffer_size, breakpoint_percentile_threshold=threshold, embed_model=embedder
-        )
-
-        if string is not None:
-            for i in range(len(string)):        
-                text_to_chunk = string[i]
-                document = [Document(text=text_to_chunk)]
-                nodes = splitter.get_nodes_from_documents(document)
-                # print(nodes)
-                for j in range(len(nodes)):
-                    chunks.append(nodes[j].get_content())
-            
-
-        if file is not None:
-            for i in range(len(file)):
-                with open(file[i]) as input_file:
-                    text_to_chunk = input_file.read()
-                document = [Document(text=text_to_chunk)]            
-                nodes = splitter.get_nodes_from_documents(document)
-                # print(nodes)
-                for j in range(len(nodes)):
-                    chunks.append(nodes[j].get_content())
 
     pd.Series(chunks, name="chunks").map(lambda str: str.replace("\n","\\n").replace("\t","")).to_csv("chunks.csv", index=False, sep="%")
     return chunks

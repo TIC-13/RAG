@@ -1,7 +1,7 @@
 import argparse
 from mediapipe.tasks import python
 from mediapipe.tasks.python import text
-from chunking_llamaindex import Chunk
+from chunkenizer.chunkenizer import Chunk
 import pandas as pd
 
 def Embed(model, string=None, file=None):

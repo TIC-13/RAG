@@ -1,9 +1,18 @@
 import argparse
 from mediapipe.tasks import python
 from mediapipe.tasks.python import text
-from chunkenizer.chunkenizer import Chunk
+from chunking_llamaindex import Chunk
+import pandas as pd
 
 def Embed(model, string=None, file=None):
+
+    if model is None:
+        print("ERROR: You must inform the embedding model for the task.")
+        return
+
+    if string is None and file is None:
+        print("ERROR: You must inform at least one file or string to embed.")
+        return
 
     model_path = model[0]
     embeddings = []
@@ -15,43 +24,39 @@ def Embed(model, string=None, file=None):
 
     with text.TextEmbedder.create_from_options(options) as embedder:
         if string is not None:
+            # start_embed_time = time.time()
             for i in range(len(string)):
                 text_to_embed = string[i]
-                embedding_result = embedder.embed(text_to_embed)
+                embedding_result = embedder.embed(text_to_embed).embeddings[0].embedding
                 # print(embedding_result.embeddings[0])
-                embeddings.append(
-                    { 'embed': embedding_result.embeddings[0],
-                      'sentence': text_to_embed }
-                    )
-                
+                embeddings.append(embedding_result)
+            
+            # end_embed_time = time.time()
+            # exec_embed_time = end_embed_time - start_embed_time
+            # print("\nExecution time in ms:",exec_embed_time*1000,"\nExecution time in ms per embedding:",(exec_embed_time*1000)/len(args.string)) 
 
         if file is not None:
+            # start_read_time = time.time()
             chunks_to_embed = Chunk(file=file)
-
+            
+            # print("\nchunks amount:",len(chunks_to_embed),'\n')
+            # start_embed_time = time.time()
             for i in range(len(chunks_to_embed)):
-                embedding_result = embedder.embed(chunks_to_embed[i])
+                embedding_result = embedder.embed(chunks_to_embed[i]).embeddings[0].embedding
                 # print(embedding_result.embeddings[0])
-                embeddings.append(
-                {   'embed': embedding_result.embeddings[0],
-                    'sentence': chunks_to_embed[i] }
-                )
+                embeddings.append(embedding_result)
+            
+            # end_embed_time = time.time()
+            # exec_embed_time = end_embed_time - start_embed_time
+            # print("\nExecution time of file",i+1,"in ms:",exec_embed_time*1000,"\nExecution time in ms per embedding:",(exec_embed_time*1000)/len(chunks_to_embed)) 
 
-        if string is None and file is None:
-            print("ERROR: You must inform at least one file or string to embed.")
-            return []
+            # end_read_time = time.time()
+            # exec_read_time = end_read_time - start_read_time
+            # print("Total execution time in ms:",exec_read_time*1000,'\n') 
         
-        f = open("embedding.csv", "w+")
-        for obj in embeddings:
-            f.write(str(obj['embed'].embedding[0]))
-            f.write("\n")
-            for i in range(len(obj['embed'].embedding)-1):
-                f.write(" " + str(obj['embed'].embedding[i+1]))
+        # print("\nembeddings amount:",len(embeddings),'\n')
 
-        f = open("chunks.csv", "w+")
-        f.write(embeddings[0]['sentence'])
-        for i in range(len(embeddings)-1):
-            f.write("\n>>>>>>>>>>>>>>@<<<<<<<<<<<<<<\n")
-            f.write(embeddings[i+1]['sentence'])
+        pd.DataFrame(embeddings).to_csv("embeddings.csv", index=False, sep="\t")
 
                 
 if __name__ == '__main__':
@@ -62,7 +67,6 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--file', action='store', nargs='+', type=str, help='PATH of file(s) to embed')
     args = parser.parse_args()
 
-    embeddings = Embed(model=args.model, string=args.string, file=args.file)
-    for obj in embeddings:
-        print("embed:",obj['embed'].embedding,"\n\n")
-        # print('embed:',obj['embed'],'\nsentence:',obj['sentence'],'\n')
+    Embed(model=args.model, string=args.string, file=args.file)
+    # f = open("embeddings.txt")
+    # print(f.read())

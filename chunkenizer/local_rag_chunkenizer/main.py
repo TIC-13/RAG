@@ -32,11 +32,15 @@ def chunkenize_recursive(
 			text = re.sub(regex_remover, "", text)
 		chunks = text_splitter.split_text(text)
 		filename = os.path.basename(documents[0].doc_id) + ".csv"
-		pd.Series(
-			chunks, name="chunks"
-		).map(
-			lambda x: x.replace("\n", "\\n").replace("\t", "")
-		).to_csv(
-			os.path.join(output_dir, filename), index=False, sep="|"
-		)
+		save_to_csv(chunks, output_dir, filename)
+		
+
+def save_to_csv(chunks, output_dir, filename):
+	pd.Series(
+		chunks, name="chunks"
+	).map(
+		lambda x: x.replace("\n", "\\n").replace("\t", "")
+	).to_csv(
+		os.path.join(output_dir, filename), index=False, sep="|"
+	)
 	

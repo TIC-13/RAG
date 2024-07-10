@@ -1,0 +1,2 @@
+[console_scripts]
+local_rag_chunkenizer = local_rag_chunkenizer.cli:cli

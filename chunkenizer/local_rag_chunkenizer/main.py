@@ -7,8 +7,10 @@ import re
 import warnings
 import pandas as pd
 import os
+import tqdm
 
 warnings.filterwarnings("ignore")
+
 
 def chunkenize_recursive(
 		input_dir, output_dir, chunk_size, 
@@ -29,7 +31,7 @@ def chunkenize_recursive(
 		is_separator_regex=False,
 	)
 	
-	for document in documents:
+	for document in tqdm.tqdm(documents):
 		text = document.text
 		for regex_remover in regex_removers:
 			text = re.sub(regex_remover, "", text)
@@ -53,7 +55,7 @@ def chunkenize_markdown_sep(
 	
 	assert len(documents) > 0, f"No markdown documents found in '{input_dir}'."
 	
-	for document in documents:
+	for document in tqdm.tqdm(documents):
 		chunks = [
       		"# " + i for i in re.split("[#]+ ", document.text) if not(i.isspace())
         ][1:]

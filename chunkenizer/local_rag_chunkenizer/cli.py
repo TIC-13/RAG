@@ -32,6 +32,7 @@ def cli():
     type=click.Choice(
         [
             "recursive",
+            "markdown_sep",
             "semantic",
         ]
     ),
@@ -56,6 +57,22 @@ def cli():
     )
 )
 @click.option(
+	"--buffer_size",
+	default=1, 
+	type=click.INT,
+    help=(
+    	"Buffer size for semantic chunkenization."
+    )
+)
+@click.option(
+	"--threshold",
+	default=40, 
+	type=click.INT,
+    help=(
+    	"Threshold for semantic chunkenization."
+    )
+)
+@click.option(
 	"-r",
 	"--regex_removers",
 	default=["\\n[0-9]+"],
@@ -67,16 +84,23 @@ def cli():
 )
 def chunkenize(
 		documents_path, output_path, 
-		method, chunk_size, overlap, regex_removers
+		method, chunk_size, overlap,
+        buffer_size, threshold, regex_removers
 	):
     """
     Entry point to start chunkenizing.
     """
     if method == None:
-    	raise ValueError("Method can't be 'None'")
+        raise ValueError("Method can't be 'None'")
     if method == "recursive":
-    	main.chunkenize_recursive(
-    		documents_path, output_path, chunk_size, overlap, regex_removers
-    	)
+        main.chunkenize_recursive(
+            documents_path, output_path, chunk_size, overlap, regex_removers
+        )
+    elif method == "markdown_sep":
+        main.chunkenize_markdown_sep(
+            documents_path, output_path
+        )
     else:
-    	raise NotImplementedError("Semantic chunkenization is not available yet.")
+        main.chunkenize_semantic(
+            documents_path, output_path, buffer_size, threshold
+        )

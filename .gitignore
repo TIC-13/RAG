@@ -36,3 +36,4 @@ build/raggae
 __pycache__
 *.egg-info
 data/
+embedding_models/

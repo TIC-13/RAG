@@ -17,12 +17,14 @@ def chunkenize_recursive(
 		overlap_size, regex_removers
 	):
 	required_exts = [".pdf", ".md"]
-	documents = read_files_as_documents(
-		input_dir=input_dir,
-		required_exts=required_exts
-	)
-	
-	assert len(documents) > 0, f"No documents found in '{input_dir}'."
+	try:
+		documents = read_files_as_documents(
+			input_dir=input_dir,
+			required_exts=required_exts
+		)
+	except:
+		print(f"No documents found in '{input_dir}'.")
+		return
 	
 	text_splitter = RecursiveCharacterTextSplitter(
 		chunk_size=chunk_size,
@@ -48,12 +50,14 @@ def chunkenize_markdown_sep(
     	input_dir, output_dir
 	):
 	required_exts = [".md"]
-	documents = read_files_as_documents(
-		input_dir=input_dir,
-		required_exts=required_exts
-	)
-	
-	assert len(documents) > 0, f"No markdown documents found in '{input_dir}'."
+	try:
+		documents = read_files_as_documents(
+			input_dir=input_dir,
+			required_exts=required_exts
+		)
+	except:
+		print(f"No markdown documents found in '{input_dir}'.")
+		return
 	
 	for document in tqdm.tqdm(documents):
 		chunks = [

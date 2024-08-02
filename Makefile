@@ -16,8 +16,8 @@ CHUNKENIZER_REQ = ./chunkenizer/requirements.txt
 
 ########################################
 
-all_desktop: embedding chunkenizer	# desktop exec_desktop
-# all_android: android exec_android
+all_desktop: embedding	# desktop exec_desktop
+all_android: embedding
 
 # OBJS_DESKTOP = main.o funcao1.o
 # OBJS_ANDROID = main_android.o funcao1_android.o
@@ -29,11 +29,16 @@ all_desktop: embedding chunkenizer	# desktop exec_desktop
 
 VENV_PY = ./venv/bin/python3
 
-embedding: $(EMBEDDING_REQ) chunkenizer ./venv
-	$(VENV_PY) -m pip install -r $(EMBEDDING_REQ)
 
-chunkenizer: $(CHUNKENIZER_REQ) ./venv
-	$(VENV_PY) -m pip install -r $(CHUNKENIZER_REQ)
+chunkenizer:
+	local_rag_chunkenizer chunkenize -d data/ -o data/ -m recursive
+	local_rag_chunkenizer chunkenize -d data/ -o data/ -m markdown_sep
+
+embedding: chunkenizer
+	local_rag_embedder generate-embeddings -c data/ -o data/ -m universal_sentence_encoder
+	cp embedding_models/universal_sentence_encoder.tflite mlc/android/MLCChat/app/src/main/assets/universal_sentence_encoder.tflite
+
+
 
 # main.o: main.cpp
 # 	$(CC_DESKTOP) $(CFLAGS) -c main.cpp -o main.o
@@ -72,3 +77,4 @@ clean:
 
 # 	rm -f $(OBJS_DESKTOP) $(OBJS_ANDROID) /build/reggae 
 
+.PHONY: embedding chunkenizer common_environment

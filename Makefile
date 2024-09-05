@@ -5,7 +5,7 @@ all_android: embedding
 
 
 chunkenizer:
-	local_rag_chunkenizer chunkenize -d data/ -o data/ -m recursive
+	local_rag_chunkenizer chunkenize -d data/ -o data/ -m recursive --chunk_size 300 --overlap 40
 	local_rag_chunkenizer chunkenize -d data/ -o data/ -m markdown_sep
 
 embedding: chunkenizer

@@ -12,7 +12,9 @@ warnings.filterwarnings("ignore")
 
 
 MODELS_URL = {
-	"universal_sentence_encoder": "https://storage.googleapis.com/mediapipe-models/text_embedder/universal_sentence_encoder/float32/latest/universal_sentence_encoder.tflite"
+	"universal_sentence_encoder": "https://storage.googleapis.com/mediapipe-models/text_embedder/universal_sentence_encoder/float32/latest/universal_sentence_encoder.tflite",
+	"bert_embedder": "https://storage.googleapis.com/mediapipe-models/text_embedder/bert_embedder/float32/1/bert_embedder.tflite",
+	"average_word_embedder": "https://storage.googleapis.com/mediapipe-models/text_embedder/average_word_embedder/float32/1/average_word_embedder.tflite"
 }
 
 
@@ -34,7 +36,7 @@ def embed_chunks(
 			for file_chunk in tqdm.tqdm(response.iter_content(chunk_size=10 * 1024), unit=' file_chunks'):
 				file.write(file_chunk)
 	base_options = python.BaseOptions(model_asset_path=model_path)
-	options = text.TextEmbedderOptions(base_options=base_options)
+	options = text.TextEmbedderOptions(base_options=base_options, quantize=True, l2_normalize=True)
 	embedder = text.TextEmbedder.create_from_options(options)
 	for file in tqdm.tqdm(chunk_stores):
 		output_filename = os.path.join(output_dir, "vectors_" + os.path.basename(file))

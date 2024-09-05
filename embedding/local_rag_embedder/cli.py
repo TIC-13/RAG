@@ -33,6 +33,8 @@ def cli():
     type=click.Choice(
         [
             "universal_sentence_encoder",
+            "bert_embedder",
+            "average_word_embedder"
         ]
     ),
     help=(

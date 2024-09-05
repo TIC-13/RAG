@@ -81,7 +81,7 @@ def save_to_csv(chunks, output_dir, filename):
 	pd.Series(
 		chunks, name="chunks"
 	).map(
-		lambda x: x.replace("\n", "\\n").replace("\t", "").replace("|", "</vbar>")
+		lambda x: x.replace("\n", " ").replace('\f', ' ').replace('•', ' ').replace("\t", " ").replace("|", "</vbar>")
 	).to_csv(
 		os.path.join(output_dir, filename), index=False, sep="|"
 	)
